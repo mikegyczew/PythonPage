@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}FakeBank — klienci{% endblock %}
+{% block heading %}Baza klientów{% endblock %}
+{% block content %}
+<section class="panel page-panel"><div class="panel-head"><div><h3>Wszyscy klienci</h3><p>Wyszukuj i przeglądaj profile klientów banku</p></div></div><div class="search"><input id="search" placeholder="⌕  Szukaj klienta..."><select id="status"><option value="">Wszystkie statusy</option><option>Aktywne</option><option>Zablokowane</option></select></div><div class="customer-grid" id="customers-list"></div></section>
+{% endblock %}
+{% block scripts %}<script src="/static/customers.js"></script>{% endblock %}

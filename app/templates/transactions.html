@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}FakeBank — transakcje{% endblock %}
+{% block heading %}Historia transakcji{% endblock %}
+{% block content %}
+<section class="panel page-panel"><div class="panel-head"><div><h3>Wszystkie transakcje</h3><p>Monitoruj najnowszą aktywność bankową</p></div><label class="check"><input id="only-suspicious" type="checkbox"> Tylko podejrzane</label></div><div class="table-wrap"><table><thead><tr><th>Klient</th><th>Typ</th><th>Kwota</th><th>Odbiorca</th><th>Data</th><th>Status</th></tr></thead><tbody id="transaction-list"></tbody></table></div></section>
+{% endblock %}
+{% block scripts %}<script src="/static/transactions.js"></script>{% endblock %}

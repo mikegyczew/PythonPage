@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}FakeBank — alerty ryzyka{% endblock %}
+{% block heading %}Alerty ryzyka{% endblock %}
+{% block content %}
+<section class="panel page-panel"><div class="panel-head"><div><h3>Podejrzane transakcje</h3><p>Operacje wymagające dodatkowej weryfikacji</p></div></div><div id="alerts-list"></div></section>
+{% endblock %}
+{% block scripts %}<script src="/static/alerts.js"></script>{% endblock %}

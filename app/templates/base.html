@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}BANK Michael-a{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">₿</span><span>BANK <span>Michael-a</span></span></div>
+    <p class="menu-label">CENTRUM ANALIZY</p>
+    <nav>
+      <a class="{% if active == 'dashboard' %}active{% endif %}" href="/">▦ <span>Dashboard</span></a>
+      <a class="{% if active == 'customers' %}active{% endif %}" href="/customers">♙ <span>Klienci</span></a>
+      <a class="{% if active == 'transactions' %}active{% endif %}" href="/transactions">↗ <span>Transakcje</span></a>
+      <a class="{% if active == 'alerts' %}active{% endif %}" href="/alerts">⚠ <span>Alerty ryzyka</span><b id="alert-count">0</b></a>
+    </nav>
+    <div class="sidebar-bottom"><div class="status-dot"></div><span>System operacyjny<br><small>Wszystkie usługi aktywne</small></span></div>
+  </aside>
+  <main>
+    <header><div><p class="eyebrow">NIEDZIELA, <span id="today"></span></p><h1>{% block heading %}Centrum analizy{% endblock %}</h1></div><button class="profile">MK <span>Administrator<br><small>Panel zarządzania</small></span>⌄</button></header>
+    {% block content %}{% endblock %}
+    <footer>FAKEBANK · Platforma demonstracyjna · Dane wygenerowane losowo</footer>
+  </main>
+  <script src="/static/common.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
