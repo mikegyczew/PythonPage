@@ -1,17 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PythonPage</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FakeBank — centrum analizy</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>PythonPage działa!</h1>
-        <p>Moja strona działa na Pythonie i Dockerze.</p>
-        <p>Pozdrawiam cie łukaszu!!</p>
-    </div>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark">₿</span><span>fake<span>bank</span></span></div>
+    <p class="menu-label">CENTRUM ANALIZY</p>
+    <nav>
+      <a class="active" href="#dashboard">▦ <span>Dashboard</span></a>
+      <a href="#customers">♙ <span>Klienci</span></a>
+      <a href="#transactions">↗ <span>Transakcje</span></a>
+      <a href="#alerts">⚠ <span>Alerty ryzyka</span><b id="alert-count">0</b></a>
+    </nav>
+    <div class="sidebar-bottom"><div class="status-dot"></div><span>System operacyjny<br><small>Wszystkie usługi aktywne</small></span></div>
+  </aside>
+  <main>
+    <header><div><p class="eyebrow">NIEDZIELA, <span id="today"></span></p><h1>Centrum analizy</h1></div><button class="profile">MK <span>Administrator<br><small>Panel zarządzania</small></span>⌄</button></header>
+    <section class="hero"><div><p class="eyebrow">WITAJ W FAKEBANK</p><h2>Dobry wieczór, Administratorze <span>✦</span></h2><p>Przeglądaj dane bankowe i monitoruj aktywność klientów w czasie rzeczywistym.</p></div><div class="hero-badge">● DANE DEMONSTRACYJNE</div></section>
+    <section class="stats" id="dashboard">
+      <article><div class="stat-icon purple">♙</div><p>Wszyscy klienci</p><strong id="customers-total">—</strong><small class="positive">↑ 12.4% <em>vs. poprzedni miesiąc</em></small></article>
+      <article><div class="stat-icon blue">↗</div><p>Transakcje (30 dni)</p><strong id="transactions-total">—</strong><small class="positive">↑ 8.7% <em>vs. poprzedni miesiąc</em></small></article>
+      <article><div class="stat-icon green">zł</div><p>Łączne saldo</p><strong id="balance-total">—</strong><small class="positive">↑ 5.2% <em>vs. poprzedni miesiąc</em></small></article>
+      <article><div class="stat-icon orange">⚠</div><p>Podejrzane transakcje</p><strong id="suspicious-total">—</strong><small class="negative">↑ 2.1% <em>wymaga uwagi</em></small></article>
+    </section>
+    <section class="grid-two">
+      <article class="panel chart-panel"><div class="panel-head"><div><h3>Przepływ środków</h3><p>Wpływy i wydatki w ostatnich 30 dniach</p></div><select id="period"><option>Ostatnie 30 dni</option><option>Ostatnie 7 dni</option></select></div><canvas id="flow-chart"></canvas></article>
+      <article class="panel"><div class="panel-head"><div><h3>Klienci według kraju</h3><p>Rozkład geograficzny bazy</p></div></div><div class="country"><span>🇵🇱</span><div><b>Polska</b><small id="country-count">— klientów</small></div><strong id="country-percent">100%</strong></div><div class="progress"><i></i></div><div class="map-placeholder">◈<span>Mapa aktywności klientów</span></div></article>
+    </section>
+    <section class="grid-two lower">
+      <article class="panel" id="alerts"><div class="panel-head"><div><h3>Ostatnie alerty ryzyka</h3><p>Transakcje wymagające weryfikacji</p></div><a href="#transactions">Zobacz wszystkie →</a></div><div id="alerts-list"></div></article>
+      <article class="panel" id="customers"><div class="panel-head"><div><h3>Ranking klientów</h3><p>Według salda konta</p></div><a href="#customers">Pełny ranking →</a></div><div class="search"><input id="search" placeholder="⌕  Szukaj klienta..."><select id="status"><option value="">Wszystkie statusy</option><option>Aktywne</option><option>Zablokowane</option></select></div><div id="customers-list"></div></article>
+    </section>
+    <section class="panel transactions" id="transactions"><div class="panel-head"><div><h3>Historia transakcji</h3><p>Monitoruj najnowszą aktywność</p></div><label class="check"><input id="only-suspicious" type="checkbox"> Tylko podejrzane</label></div><div class="table-wrap"><table><thead><tr><th>Klient</th><th>Typ</th><th>Kwota</th><th>Odbiorca</th><th>Data</th><th>Status</th></tr></thead><tbody id="transaction-list"></tbody></table></div></section>
+    <footer>FAKEBANK · Platforma demonstracyjna · Dane wygenerowane losowo</footer>
+  </main>
+  <script>
+    const money = value => new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN',maximumFractionDigits:0}).format(value);
+    const date = value => new Date(value).toLocaleDateString('pl-PL',{day:'2-digit',month:'short'});
+    async function api(path) { const response = await fetch(path); return response.json(); }
+    function renderCustomers(rows) { document.querySelector('#customers-list').innerHTML = rows.map((c,i)=>`<div class="customer"><span class="avatar a${i%4}">${c.name.split(' ').map(x=>x[0]).join('').slice(0,2)}</span><div><b>${c.name}</b><small>${c.city} · <span class="${c.status==='Aktywne'?'online':'blocked'}">${c.status}</span></small></div><strong>${money(c.balance)}</strong></div>`).join(''); }
+    function renderTransactions(rows) { document.querySelector('#transaction-list').innerHTML = rows.map(t=>`<tr><td><b>${t.name}</b><small>ID #${t.id}</small></td><td><span class="type ${t.transaction_type==='Wpływ'?'in':''}">${t.transaction_type}</span></td><td class="${t.transaction_type==='Wpływ'?'amount-in':''}">${t.transaction_type==='Wpływ'?'+':'−'} ${money(t.amount)}</td><td>${t.merchant}</td><td>${date(t.date)}</td><td><span class="tag ${t.suspicious?'risk':'done'}">${t.suspicious?'Do weryfikacji':'Zaksięgowana'}</span></td></tr>`).join(''); }
+    async function load() {
+      document.querySelector('#today').textContent = new Date().toLocaleDateString('pl-PL',{day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+      const data = await api('/api/summary'); document.querySelector('#customers-total').textContent=data.customers.toLocaleString('pl-PL'); document.querySelector('#transactions-total').textContent=data.transactions.toLocaleString('pl-PL'); document.querySelector('#balance-total').textContent=money(data.balance); document.querySelector('#suspicious-total').textContent=data.suspicious.toLocaleString('pl-PL'); document.querySelector('#alert-count').textContent=data.suspicious; document.querySelector('#country-count').textContent=`${data.customers.toLocaleString('pl-PL')} klientów`;
+      document.querySelector('#alerts-list').innerHTML=data.suspicious_list.map(t=>`<div class="alert"><span class="alert-icon">⚠</span><div><b>${t.name}</b><small>${t.merchant} · ${date(t.date)}</small></div><strong>${money(t.amount)}</strong></div>`).join('');
+      const customers=await api('/api/customers'); renderCustomers(customers); renderTransactions(await api('/api/transactions'));
+      new Chart(document.querySelector('#flow-chart'),{type:'line',data:{labels:data.daily.map(x=>date(x.date)),datasets:[{data:data.daily.map(x=>x.amount),borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,.13)',fill:true,tension:.4,pointRadius:0}]},options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#70758c',maxTicksLimit:7}},y:{grid:{color:'#292d3d'},ticks:{color:'#70758c',callback:v=>`${v/1000}k`}}}}});
+    }
+    document.querySelector('#search').addEventListener('input', async e=>renderCustomers(await api(`/api/customers?search=${encodeURIComponent(e.target.value)}&status=${document.querySelector('#status').value}`)));
+    document.querySelector('#status').addEventListener('change', async e=>renderCustomers(await api(`/api/customers?search=${encodeURIComponent(document.querySelector('#search').value)}&status=${encodeURIComponent(e.target.value)}`)));
+    document.querySelector('#only-suspicious').addEventListener('change', async e=>renderTransactions(await api(`/api/transactions?suspicious=${e.target.checked}`)));
+    load();
+  </script>
 </body>
 </html>
-
