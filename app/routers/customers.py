@@ -7,13 +7,15 @@ router = APIRouter(prefix="/api/customers", tags=["customers"])
 
 @router.get("")
 def customers(search: str = "", status: str = "", limit: int = Query(8, le=50)):
-    pattern = f"%{search}%"
+    search = search.strip()
+    name_pattern = f"%{search}%"
+
     with connect() as connection:
         rows = connection.execute(
             """SELECT id, name, email, city, balance, status FROM customers
-               WHERE (name LIKE ? OR email LIKE ? OR account_number LIKE ?)
-                 AND (? = '' OR status = ?) ORDER BY balance DESC LIMIT ?""",
-            (pattern, pattern, pattern, status, status, limit),
+                WHERE (? = '' OR lower(name) LIKE lower(?))
+                  AND (? = '' OR status = ?) ORDER BY balance DESC LIMIT ?""",
+            (search, name_pattern, status, status, limit),
         ).fetchall()
     return [dict(row) for row in rows]
 
